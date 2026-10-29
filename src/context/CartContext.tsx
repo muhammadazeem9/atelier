@@ -14,6 +14,8 @@ import type { CartItem } from "@/types/cart";
 type CartContextValue = {
   items: CartItem[];
   addToCart: (product: Product, quantity?: number) => void;
+  updateQuantity: (productId: Product["id"], quantity: number) => void;
+  removeFromCart: (productId: Product["id"]) => void;
   cartCount: number;
 };
 
@@ -29,7 +31,7 @@ export function CartProvider({ children }: CartProviderProps) {
   const [items, setItems] = useState<CartItem[]>([]);
   const [isLoaded, setIsLoaded] = useState(false);
 
-  // Restore the cart when the app loads.
+  // Restore cart from localStorage.
   useEffect(() => {
     try {
       const savedCart = localStorage.getItem(CART_STORAGE_KEY);
@@ -48,7 +50,7 @@ export function CartProvider({ children }: CartProviderProps) {
     }
   }, []);
 
-  // Save cart changes after the initial load.
+  // Save cart whenever items change.
   useEffect(() => {
     if (!isLoaded) return;
 
@@ -60,6 +62,8 @@ export function CartProvider({ children }: CartProviderProps) {
   }, [items, isLoaded]);
 
   function addToCart(product: Product, quantity = 1) {
+    if (!Number.isInteger(quantity) || quantity < 1) return;
+
     setItems((currentItems) => {
       const existingItem = currentItems.find(
         (item) => item.product.id === product.id,
@@ -77,10 +81,34 @@ export function CartProvider({ children }: CartProviderProps) {
     });
   }
 
+  function updateQuantity(productId: Product["id"], quantity: number) {
+    if (!Number.isInteger(quantity) || quantity < 1) return;
+
+    setItems((currentItems) =>
+      currentItems.map((item) =>
+        item.product.id === productId ? { ...item, quantity } : item,
+      ),
+    );
+  }
+
+  function removeFromCart(productId: Product["id"]) {
+    setItems((currentItems) =>
+      currentItems.filter((item) => item.product.id !== productId),
+    );
+  }
+
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ items, addToCart, cartCount }}>
+    <CartContext.Provider
+      value={{
+        items,
+        addToCart,
+        updateQuantity,
+        removeFromCart,
+        cartCount,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
