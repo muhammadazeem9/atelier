@@ -16,6 +16,7 @@ type CartContextValue = {
   addToCart: (product: Product, quantity?: number) => void;
   updateQuantity: (productId: Product["id"], quantity: number) => void;
   removeFromCart: (productId: Product["id"]) => void;
+  clearCart: () => void;
   cartCount: number;
 };
 
@@ -97,6 +98,10 @@ export function CartProvider({ children }: CartProviderProps) {
     );
   }
 
+  function clearCart() {
+    setItems([]);
+  }
+
   const cartCount = items.reduce((total, item) => total + item.quantity, 0);
 
   return (
@@ -106,6 +111,7 @@ export function CartProvider({ children }: CartProviderProps) {
         addToCart,
         updateQuantity,
         removeFromCart,
+        clearCart,
         cartCount,
       }}
     >

@@ -125,13 +125,12 @@ export default function CartPage() {
           Shipping and taxes are calculated at checkout.
         </p>
 
-        <button
-          type="button"
-          onClick={() => alert("Checkout is not implemented yet.")}
-          className="mt-6 w-full bg-neutral-950 px-6 py-4 text-sm uppercase tracking-widest text-white transition hover:bg-neutral-800"
+        <Link
+          href="/checkout"
+          className="mt-6 block w-full bg-neutral-950 px-6 py-4 text-center text-sm uppercase tracking-widest text-white transition hover:bg-neutral-800"
         >
-          Continue to Checkout
-        </button>
+          Proceed to Checkout
+        </Link>
 
         <Link
           href="/shop"
