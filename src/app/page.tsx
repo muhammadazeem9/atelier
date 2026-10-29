@@ -1,9 +1,9 @@
 import HeroSection from "@/components/HeroSection";
 import ProductCard from "@/components/shop/ProductCard";
-import { products } from "@/data/products";
+import { getFeaturedProducts } from "@/lib/product";
 
-export default function Home() {
-  const featuredProducts = products.filter((product) => product.inStock);
+export default async function Home() {
+  const featuredProducts = await getFeaturedProducts();
 
   return (
     <main className="min-h-screen bg-[#FAF9F6] text-[#25241F]">

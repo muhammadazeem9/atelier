@@ -2,33 +2,10 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-
-type SavedOrder = {
-  orderNumber: string;
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    postalCode: string;
-  };
-  paymentMethod: "cod" | "online";
-  items: {
-    id: string | number;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  }[];
-  subtotal: number;
-  shipping: number;
-  total: number;
-  createdAt: string;
-};
+import { CheckoutOrder } from "@/types/order";
 
 export default function OrderConfirmationPage() {
-  const [order, setOrder] = useState<SavedOrder | null>(null);
+  const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -36,7 +13,7 @@ export default function OrderConfirmationPage() {
       const savedOrder = sessionStorage.getItem("atelier-last-order");
 
       if (savedOrder) {
-        setOrder(JSON.parse(savedOrder) as SavedOrder);
+        setOrder(JSON.parse(savedOrder) as CheckoutOrder);
       }
     } catch {
       setOrder(null);

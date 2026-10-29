@@ -4,32 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-
-type PaymentMethod = "cod" | "online";
-
-export type CheckoutOrder = {
-  orderNumber: string;
-  customer: {
-    name: string;
-    email: string;
-    phone: string;
-    address: string;
-    city: string;
-    postalCode: string;
-  };
-  paymentMethod: PaymentMethod;
-  items: {
-    id: string | number;
-    name: string;
-    price: number;
-    quantity: number;
-    image: string;
-  }[];
-  subtotal: number;
-  shipping: number;
-  total: number;
-  createdAt: string;
-};
+import { CheckoutOrder, PaymentMethod } from "@/types/order";
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCart();

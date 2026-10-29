@@ -50,7 +50,3 @@ export const products: Product[] = [
     inStock: true,
   },
 ];
-
-export function getProductBySlug(slug: string): Product | undefined {
-  return products.find((product) => product.slug === slug);
-}
