@@ -4,19 +4,21 @@ import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "@/types/product";
+import { useCart } from "@/context/CartContext";
 
 type ProductDetailsProps = {
   product: Product;
 };
 
 export default function ProductDetails({ product }: ProductDetailsProps) {
+  const { addToCart } = useCart();
   const [quantity, setQuantity] = useState(1);
   const [added, setAdded] = useState(false);
 
   function handleAddToBag() {
     if (!product.inStock) return;
 
-    // Temporary UI feedback. Connect your cart here later.
+    addToCart(product, quantity);
     setAdded(true);
   }
 
@@ -134,8 +136,8 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
           </button>
 
           {added && (
-            <p role="status" className="mt-3 text-sm text-neutral-600">
-              Selection confirmed for this demo. Your cart has not been saved.
+            <p role="status" className="mt-3 text-sm text-green-700">
+              {quantity} item(s) added to your bag.
             </p>
           )}
 
