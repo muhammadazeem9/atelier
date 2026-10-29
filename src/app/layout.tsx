@@ -26,7 +26,9 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en">
-      <body className="flex min-h-screen flex-col">
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} flex min-h-screen flex-col`}
+      >
         <Header />
 
         <div className="flex-1">{children}</div>

@@ -24,12 +24,12 @@ export async function generateMetadata({
 
   if (!product) {
     return {
-      title: "Product Not Found | ATELIER",
+      title: "Product Not Found",
     };
   }
 
   return {
-    title: `${product.name} | ATELIER`,
+    title: product.name,
     description: product.description,
   };
 }
@@ -42,9 +42,5 @@ export default async function ProductPage({ params }: ProductPageProps) {
     notFound();
   }
 
-  return (
-    <>
-      <ProductDetails product={product} />;
-    </>
-  );
+  return <ProductDetails product={product} />;
 }

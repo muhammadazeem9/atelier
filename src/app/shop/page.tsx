@@ -1,7 +1,9 @@
 import ProductCard from "@/components/shop/ProductCard";
-import { products } from "@/data/products";
+import { getProducts } from "@/lib/product";
 
-export default function ShopPage() {
+export default async function ShopPage() {
+  const products = await getProducts();
+
   return (
     <main className="min-h-screen bg-[#f7f5f0] px-6 py-12 text-[#25241f] md:px-12 md:py-20">
       <div className="mx-auto max-w-7xl">
