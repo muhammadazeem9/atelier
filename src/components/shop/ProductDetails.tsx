@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useState } from "react";
 import type { Product } from "@/types/product";
 import { useCart } from "@/context/CartContext";
+import { formatPrice } from "@/lib/format";
 
 type ProductDetailsProps = {
   product: Product;
@@ -57,7 +58,7 @@ export default function ProductDetails({ product }: ProductDetailsProps) {
             {product.name}
           </h1>
 
-          <p className="mt-5 text-xl">${product.price.toFixed(2)}</p>
+          <p className="mt-5 text-xl">{formatPrice(product.price)}</p>
 
           <div className="my-8 border-t border-neutral-200" />
 

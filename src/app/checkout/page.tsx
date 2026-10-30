@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { CheckoutOrder, PaymentMethod } from "@/types/order";
+import { formatPrice } from "@/lib/format";
 
 export default function CheckoutPage() {
   const { items, clearCart } = useCart();
@@ -197,7 +198,6 @@ export default function CheckoutPage() {
 
         <aside className="h-fit border border-neutral-200 p-6">
           <h2 className="text-lg font-medium">Order summary</h2>
-
           <div className="mt-5 space-y-5">
             {items.map((item) => (
               <div
@@ -209,7 +209,7 @@ export default function CheckoutPage() {
                   <p className="mt-1 text-neutral-500">Qty: {item.quantity}</p>
                 </div>
                 <p className="shrink-0">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.product.price * item.quantity)}
                 </p>
               </div>
             ))}
@@ -217,13 +217,27 @@ export default function CheckoutPage() {
 
           <div className="mt-6 space-y-3 border-t border-neutral-200 pt-5 text-sm">
             <SummaryRow label="Subtotal" value={subtotal} />
+
             <div className="flex justify-between">
               <span>Shipping</span>
-              <span>{shipping === 0 ? "Free" : `$${shipping.toFixed(2)}`}</span>
+              <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
+            </div>
+
+            <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-medium">
+              <span>Total</span>
+              <span>{formatPrice(total)}</span>
+            </div>
+          </div>
+
+          <div className="mt-6 space-y-3 border-t border-neutral-200 pt-5 text-sm">
+            <SummaryRow label="Subtotal" value={subtotal} />
+            <div className="flex justify-between">
+              <span>Shipping</span>
+              <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
             </div>
             <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-medium">
               <span>Total</span>
-              <span>${total.toFixed(2)}</span>
+              <span>{formatPrice(total)}</span>
             </div>
           </div>
 
@@ -268,7 +282,7 @@ function SummaryRow({ label, value }: { label: string; value: number }) {
   return (
     <div className="flex justify-between">
       <span>{label}</span>
-      <span>${value.toFixed(2)}</span>
+      <span>{formatPrice(value)}</span>
     </div>
   );
 }

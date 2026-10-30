@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { CheckoutOrder } from "@/types/order";
+import { formatPrice } from "@/lib/format";
 
 export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
@@ -117,7 +118,7 @@ export default function OrderConfirmationPage() {
                   </p>
                 </div>
                 <p className="shrink-0">
-                  ${(item.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.price * item.quantity)}
                 </p>
               </div>
             ))}
@@ -126,19 +127,17 @@ export default function OrderConfirmationPage() {
           <div className="mt-5 space-y-3 text-sm">
             <div className="flex justify-between">
               <span>Subtotal</span>
-              <span>${order.subtotal.toFixed(2)}</span>
+              <span>{formatPrice(order.subtotal)}</span>
             </div>
             <div className="flex justify-between">
               <span>Shipping</span>
               <span>
-                {order.shipping === 0
-                  ? "Free"
-                  : `$${order.shipping.toFixed(2)}`}
+                {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}
               </span>
             </div>
             <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-medium">
               <span>Total</span>
-              <span>${order.total.toFixed(2)}</span>
+              <span>{formatPrice(order.total)}</span>
             </div>
           </div>
         </section>

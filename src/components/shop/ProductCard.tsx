@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { Product } from "@/types/product";
+import { formatPrice } from "@/lib/format";
 
 type ProductCardProps = {
   product: Product;
@@ -41,7 +42,7 @@ export default function ProductCard({ product }: ProductCardProps) {
           </h2>
 
           <p className="mt-2 text-sm text-stone-600">
-            ${product.price.toFixed(2)}
+            {formatPrice(product.price)}
           </p>
         </div>
       </Link>

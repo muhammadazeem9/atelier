@@ -4,6 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, Trash2 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
+import { formatPrice } from "@/lib/format";
 
 export default function CartPage() {
   const { items, cartCount, updateQuantity, removeFromCart } = useCart();
@@ -59,12 +60,12 @@ export default function CartPage() {
                   </p>
 
                   <p className="mt-2 text-sm">
-                    ${item.product.price.toFixed(2)} each
+                    {formatPrice(item.product.price)} each
                   </p>
                 </div>
 
                 <p className="font-medium">
-                  ${(item.product.price * item.quantity).toFixed(2)}
+                  {formatPrice(item.product.price * item.quantity)}
                 </p>
               </div>
 
@@ -118,7 +119,7 @@ export default function CartPage() {
       <div className="ml-auto mt-8 max-w-sm">
         <div className="flex justify-between text-lg">
           <span>Subtotal</span>
-          <span>${subtotal.toFixed(2)}</span>
+          <span>{formatPrice(subtotal)}</span>
         </div>
 
         <p className="mt-3 text-sm leading-6 text-neutral-500">

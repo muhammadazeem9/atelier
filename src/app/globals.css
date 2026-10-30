@@ -6,6 +6,8 @@
   --color-charcoal: #25241f;
   --color-taupe: #8a7967;
   --color-muted: #77736c;
+  --color-line: rgb(0 0 0 / 0.1);
+  --color-clay: #e8e0d4;
 
   --font-sans: var(--font-geist-sans);
   --font-serif: var(--font-display);

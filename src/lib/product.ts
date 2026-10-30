@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import type { Product } from "@/types/product";
+import { cacheLife, cacheTag } from "next/cache";
 
 function toProduct(product: {
   id: string;
@@ -19,37 +20,45 @@ function toProduct(product: {
 }
 
 export async function getProducts(): Promise<Product[]> {
-  const products = await prisma.product.findMany({
-    orderBy: { name: "asc" },
-  });
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
 
+  const products = await prisma.product.findMany({ orderBy: { name: "asc" } });
   return products.map(toProduct);
 }
 
 export async function getFeaturedProducts(): Promise<Product[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
+
   const products = await prisma.product.findMany({
     where: { inStock: true },
     orderBy: { name: "asc" },
   });
-
   return products.map(toProduct);
 }
 
 export async function getProductBySlug(
   slug: string,
 ): Promise<Product | undefined> {
-  const product = await prisma.product.findUnique({
-    where: { slug },
-  });
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products", `product:${slug}`);
 
+  const product = await prisma.product.findUnique({ where: { slug } });
   return product ? toProduct(product) : undefined;
 }
 
 export async function getProductSlugs(): Promise<string[]> {
+  "use cache";
+  cacheLife("hours");
+  cacheTag("products");
+
   const products = await prisma.product.findMany({
     select: { slug: true },
     orderBy: { slug: "asc" },
   });
-
-  return products.map((product) => product.slug);
+  return products.map((p) => p.slug);
 }
