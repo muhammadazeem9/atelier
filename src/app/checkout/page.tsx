@@ -4,7 +4,7 @@ import { useState, type FormEvent } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useCart } from "@/context/CartContext";
-import { CheckoutOrder, PaymentMethod } from "@/types/order";
+import { PaymentMethod } from "@/types/order";
 import { formatPrice } from "@/lib/format";
 
 export default function CheckoutPage() {
@@ -13,6 +13,7 @@ export default function CheckoutPage() {
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>("cod");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const subtotal = items.reduce(
     (total, item) => total + item.product.price * item.quantity,
@@ -22,7 +23,7 @@ export default function CheckoutPage() {
   const shipping = subtotal >= 100 ? 0 : 5;
   const total = subtotal + shipping;
 
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
+  async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError("");
 
@@ -42,34 +43,36 @@ export default function CheckoutPage() {
       postalCode: String(formData.get("postalCode") ?? "").trim(),
     };
 
-    const order: CheckoutOrder = {
-      orderNumber: `ATL-${Date.now().toString().slice(-8)}`,
-      customer,
-      paymentMethod,
-      items: items.map((item) => ({
-        id: item.product.id,
-        name: item.product.name,
-        price: item.product.price,
-        quantity: item.quantity,
-        image: item.product.image,
-      })),
-      subtotal,
-      shipping,
-      total,
-      createdAt: new Date().toISOString(),
-    };
-
+    setIsSubmitting(true);
     try {
-      sessionStorage.setItem("atelier-last-order", JSON.stringify(order));
-    } catch {
-      setError(
-        "Unable to save your demo order in this browser. Please check your browser storage settings.",
-      );
-      return;
-    }
+      const response = await fetch("/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...customer,
+          paymentMethod,
+          items: items.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+          })),
+        }),
+      });
+      const result: { orderId?: string; error?: string } = await response.json();
 
-    clearCart();
-    router.push("/order-confirmation");
+      if (!response.ok || !result.orderId) {
+        setError(result.error ?? "We could not place your order. Please try again.");
+        return;
+      }
+
+      clearCart();
+      router.push(
+        `/order-confirmation?orderId=${encodeURIComponent(result.orderId)}`,
+      );
+    } catch {
+      setError("We could not place your order. Check your connection and try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   if (items.length === 0) {
@@ -158,17 +161,15 @@ export default function CheckoutPage() {
                 <input
                   type="radio"
                   name="payment"
-                  checked={paymentMethod === "online"}
-                  onChange={() => setPaymentMethod("online")}
+                  disabled
                   className="mt-1 accent-black"
                 />
                 <span>
                   <span className="block text-sm font-medium">
-                    Online payment
+                    Online payment unavailable
                   </span>
                   <span className="mt-1 block text-sm text-neutral-500">
-                    Payment gateway integration is not connected yet. This demo
-                    will not charge you.
+                    Choose Cash on Delivery until online payments are available.
                   </span>
                 </span>
               </label>
@@ -183,16 +184,15 @@ export default function CheckoutPage() {
 
           <button
             type="submit"
+            disabled={isSubmitting}
             className="w-full bg-neutral-950 px-6 py-4 text-sm uppercase tracking-widest text-white transition hover:bg-neutral-800"
           >
-            {paymentMethod === "cod"
-              ? "Place demo order"
-              : "Continue with demo payment"}
+            {isSubmitting ? "Placing order..." : "Place order"}
           </button>
 
           <p className="text-xs leading-6 text-neutral-500">
-            Demo checkout only. This does not create a server-side order or
-            process a real payment.
+            Your order total is recalculated from current product prices when
+            you place the order. No online payment is processed.
           </p>
         </div>
 
@@ -223,18 +223,6 @@ export default function CheckoutPage() {
               <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
             </div>
 
-            <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-medium">
-              <span>Total</span>
-              <span>{formatPrice(total)}</span>
-            </div>
-          </div>
-
-          <div className="mt-6 space-y-3 border-t border-neutral-200 pt-5 text-sm">
-            <SummaryRow label="Subtotal" value={subtotal} />
-            <div className="flex justify-between">
-              <span>Shipping</span>
-              <span>{shipping === 0 ? "Free" : formatPrice(shipping)}</span>
-            </div>
             <div className="flex justify-between border-t border-neutral-200 pt-4 text-base font-medium">
               <span>Total</span>
               <span>{formatPrice(total)}</span>

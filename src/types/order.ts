@@ -1,6 +1,7 @@
-export type PaymentMethod = "cod" | "online";
+export type PaymentMethod = "cod";
 
 export type CheckoutOrder = {
+  id: string;
   orderNumber: string;
   customer: {
     name: string;

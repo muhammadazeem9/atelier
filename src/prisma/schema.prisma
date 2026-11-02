@@ -1,7 +1,7 @@
 
 generator client {
   provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  output   = "../generated/prisma"
 }
 
 datasource db {
@@ -20,4 +20,47 @@ model Product {
   inStock     Boolean  @default(true)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
+  orderItems  OrderItem[]
+}
+
+enum PaymentMethod {
+  COD
+}
+
+enum OrderStatus {
+  PLACED
+}
+
+model Order {
+  id                     String        @id @default(cuid())
+  orderNumber            String        @unique
+  confirmationTokenHash  String        @unique
+  customerName           String
+  customerEmail          String
+  customerPhone          String
+  shippingAddress        String        @db.Text
+  city                   String
+  postalCode             String
+  paymentMethod          PaymentMethod @default(COD)
+  status                 OrderStatus   @default(PLACED)
+  subtotal               Decimal       @db.Decimal(14, 2)
+  shipping               Decimal       @db.Decimal(14, 2)
+  total                  Decimal       @db.Decimal(14, 2)
+  createdAt              DateTime      @default(now())
+  items                  OrderItem[]
+}
+
+model OrderItem {
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String?
+  productName String
+  productImage String
+  unitPrice   Decimal  @db.Decimal(10, 2)
+  quantity    Int
+  lineTotal   Decimal  @db.Decimal(14, 2)
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
+
+  @@index([orderId])
 }

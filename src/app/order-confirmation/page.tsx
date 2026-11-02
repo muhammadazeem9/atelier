@@ -8,19 +8,46 @@ import { formatPrice } from "@/lib/format";
 export default function OrderConfirmationPage() {
   const [order, setOrder] = useState<CheckoutOrder | null>(null);
   const [loaded, setLoaded] = useState(false);
+  const [loadError, setLoadError] = useState("");
 
   useEffect(() => {
-    try {
-      const savedOrder = sessionStorage.getItem("atelier-last-order");
+    let active = true;
 
-      if (savedOrder) {
-        setOrder(JSON.parse(savedOrder) as CheckoutOrder);
+    async function loadOrder() {
+      const orderId = new URLSearchParams(window.location.search).get("orderId");
+
+      if (!orderId) {
+        setLoaded(true);
+        return;
       }
-    } catch {
-      setOrder(null);
-    } finally {
-      setLoaded(true);
+
+      try {
+        const response = await fetch(
+          `/api/orders/${encodeURIComponent(orderId)}`,
+          { cache: "no-store" },
+        );
+
+        if (!response.ok) {
+          throw new Error("Order could not be loaded.");
+        }
+
+        const savedOrder = (await response.json()) as CheckoutOrder;
+
+        if (active) setOrder(savedOrder);
+      } catch {
+        if (active) {
+          setLoadError("We could not load this order. Please try again.");
+        }
+      } finally {
+        if (active) setLoaded(true);
+      }
     }
+
+    void loadOrder();
+
+    return () => {
+      active = false;
+    };
   }, []);
 
   if (!loaded) {
@@ -36,7 +63,7 @@ export default function OrderConfirmationPage() {
       <main className="mx-auto max-w-3xl px-6 py-20 text-center">
         <h1 className="text-3xl font-light">No order found</h1>
         <p className="mt-4 text-neutral-500">
-          Complete checkout to see your order confirmation.
+          {loadError || "Complete checkout to see your order confirmation."}
         </p>
         <Link
           href="/shop"
@@ -60,31 +87,19 @@ export default function OrderConfirmationPage() {
         </h1>
 
         <p className="mt-4 leading-7 text-neutral-600">
-          Your demo checkout has been completed. This is a frontend
-          confirmation, not a real submitted order.
+          Your order has been placed and saved.
         </p>
 
         <div className="mt-8 border-y border-neutral-200 py-5">
           <div className="flex flex-wrap justify-between gap-2 text-sm">
-            <span className="text-neutral-500">Demo order number</span>
+            <span className="text-neutral-500">Order number</span>
             <span className="font-medium">{order.orderNumber}</span>
           </div>
 
           <div className="mt-4 flex justify-between gap-4 text-sm">
             <span className="text-neutral-500">Payment method</span>
-            <span>
-              {order.paymentMethod === "cod"
-                ? "Cash on Delivery"
-                : "Online payment (demo)"}
-            </span>
+            <span>Cash on Delivery</span>
           </div>
-
-          {order.paymentMethod === "online" && (
-            <p className="mt-4 text-sm text-amber-700">
-              No payment was processed. A payment provider must be integrated
-              before online payments can be accepted.
-            </p>
-          )}
         </div>
 
         <section className="mt-8">
